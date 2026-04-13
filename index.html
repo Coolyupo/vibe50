@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Fifty Japanese</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 560px;
+      padding: 20px;
+    }
+
+    /* ========== HOME SCREEN ========== */
+    .home {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 40px 36px;
+      text-align: center;
+    }
+
+    .home-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, #e96ffd, #5eb8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .home-subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      margin-bottom: 36px;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    /* Script toggle */
+    .script-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .script-btn {
+      padding: 14px 10px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .script-btn .kana-preview {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 4px;
+    }
+
+    .script-btn:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .script-btn.active {
+      border-color: #e96ffd;
+      background: rgba(233,111,253,0.15);
+      color: #fff;
+    }
+
+    /* Category checkboxes */
+    .category-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .cat-item:hover {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .cat-item.checked {
+      border-color: #5eb8ff;
+      background: rgba(94,184,255,0.12);
+    }
+
+    .cat-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .cat-item.checked .cat-checkbox {
+      border-color: #5eb8ff;
+      background: #5eb8ff;
+    }
+
+    .cat-checkbox svg {
+      width: 11px;
+      height: 11px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .cat-label {
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .cat-count {
+      margin-left: auto;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* Start button */
+    .start-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #e96ffd, #5eb8ff);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+    }
+
+    .start-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(233,111,253,0.35);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* ========== GAME SCREEN ========== */
+    .game {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    .score-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .score-pill span { color: #5eb8ff; font-weight: 700; }
+
+    /* Kana card */
+    .kana-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 48px 20px;
+      text-align: center;
+      transition: border-color 0.3s, background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kana-card.correct {
+      border-color: rgba(74,222,128,0.6);
+      background: rgba(74,222,128,0.08);
+    }
+
+    .kana-card.wrong {
+      border-color: rgba(248,113,113,0.6);
+      background: rgba(248,113,113,0.08);
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    .kana-char {
+      font-size: 7rem;
+      line-height: 1;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 32px rgba(233,111,253,0.3);
+      transition: opacity 0.15s;
+    }
+
+    .kana-type-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.1em;
+    }
+
+    /* Feedback */
+    .feedback {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      height: 28px;
+      transition: all 0.2s;
+    }
+
+    .feedback.correct { color: #4ade80; }
+    .feedback.wrong { color: #f87171; }
+
+    /* Input area */
+    .input-area {
+      position: relative;
+    }
+
+    .romaji-input {
+      width: 100%;
+      padding: 18px 56px 18px 20px;
+      border-radius: 16px;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      font-size: 1.25rem;
+      letter-spacing: 0.08em;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      text-align: center;
+    }
+
+    .romaji-input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .romaji-input:focus {
+      border-color: rgba(94,184,255,0.6);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .romaji-input.correct {
+      border-color: rgba(74,222,128,0.7);
+      background: rgba(74,222,128,0.1);
+    }
+
+    .romaji-input.wrong {
+      border-color: rgba(248,113,113,0.7);
+      background: rgba(248,113,113,0.08);
+    }
+
+    /* Streak */
+    .streak-bar {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .streak-fire { color: #fb923c; font-size: 1rem; }
+    .streak-num { color: #fb923c; font-weight: 700; font-size: 1rem; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== HOME ===== -->
+  <div v-if="screen === 'home'" class="home">
+    <div class="home-title">🎌 Vibe Fifty Japanese</div>
+    <div class="home-subtitle">輸入羅馬拼音，征服五十音！</div>
+
+    <!-- Script selection -->
+    <div class="section-label">選擇文字</div>
+    <div class="script-toggle" style="margin-bottom: 28px;">
+      <button
+        class="script-btn"
+        :class="{ active: script === 'hiragana' }"
+        @click="script = 'hiragana'"
+      >
+        <span class="kana-preview">あ</span>
+        平假名
+      </button>
+      <button
+        class="script-btn"
+        :class="{ active: script === 'katakana' }"
+        @click="script = 'katakana'"
+      >
+        <span class="kana-preview">ア</span>
+        片假名
+      </button>
+    </div>
+
+    <!-- Category selection -->
+    <div class="section-label">選擇範圍</div>
+    <div class="category-grid">
+      <div
+        v-for="cat in categories"
+        :key="cat.key"
+        class="cat-item"
+        :class="{ checked: selectedCats.includes(cat.key) }"
+        @click="toggleCat(cat.key)"
+      >
+        <div class="cat-checkbox">
+          <svg v-if="selectedCats.includes(cat.key)" viewBox="0 0 12 12">
+            <polyline points="1.5,6 4.5,9.5 10.5,2.5"/>
+          </svg>
+        </div>
+        <span class="cat-label">{{ cat.label }}</span>
+        <span class="cat-count">{{ getCount(cat.key) }}</span>
+      </div>
+    </div>
+
+    <button class="start-btn" :disabled="totalSelected === 0" @click="startGame">
+      開始練習（{{ totalSelected }} 個文字）
+    </button>
+  </div>
+
+  <!-- ===== GAME ===== -->
+  <div v-else-if="screen === 'game'" class="game">
+    <!-- Header -->
+    <div class="game-header">
+      <button class="back-btn" @click="goHome">← 返回</button>
+      <div class="score-pill">
+        正確 <span>{{ correctCount }}</span> / {{ totalCount }}
+      </div>
+    </div>
+
+    <!-- Kana card -->
+    <div class="kana-card" :class="cardState">
+      <div class="kana-char">{{ currentKana }}</div>
+      <div class="kana-type-badge">{{ currentCatLabel }}</div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback" :class="feedbackState">{{ feedbackMsg }}</div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <input
+        ref="inputEl"
+        v-model="userInput"
+        class="romaji-input"
+        :class="{ correct: cardState === 'correct', wrong: cardState === 'wrong' }"
+        type="text"
+        placeholder="輸入羅馬拼音，按 Enter 確認"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false"
+        @keydown.enter="checkAnswer"
+      />
+    </div>
+
+    <!-- Streak -->
+    <div class="streak-bar">
+      <span>連續答對</span>
+      <span><span class="streak-fire">🔥</span> <span class="streak-num">{{ streak }}</span></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const { createApp, ref, computed, nextTick } = Vue;
+
+// ===================== DATA =====================
+
+const HIRAGANA = {
+  seion: [
+    { kana:'あ', r:['a'] }, { kana:'い', r:['i'] }, { kana:'う', r:['u'] }, { kana:'え', r:['e'] }, { kana:'お', r:['o'] },
+    { kana:'か', r:['ka'] }, { kana:'き', r:['ki'] }, { kana:'く', r:['ku'] }, { kana:'け', r:['ke'] }, { kana:'こ', r:['ko'] },
+    { kana:'さ', r:['sa'] }, { kana:'し', r:['shi','si'] }, { kana:'す', r:['su'] }, { kana:'せ', r:['se'] }, { kana:'そ', r:['so'] },
+    { kana:'た', r:['ta'] }, { kana:'ち', r:['chi','ti'] }, { kana:'つ', r:['tsu','tu'] }, { kana:'て', r:['te'] }, { kana:'と', r:['to'] },
+    { kana:'な', r:['na'] }, { kana:'に', r:['ni'] }, { kana:'ぬ', r:['nu'] }, { kana:'ね', r:['ne'] }, { kana:'の', r:['no'] },
+    { kana:'は', r:['ha'] }, { kana:'ひ', r:['hi'] }, { kana:'ふ', r:['fu','hu'] }, { kana:'へ', r:['he'] }, { kana:'ほ', r:['ho'] },
+    { kana:'ま', r:['ma'] }, { kana:'み', r:['mi'] }, { kana:'む', r:['mu'] }, { kana:'め', r:['me'] }, { kana:'も', r:['mo'] },
+    { kana:'や', r:['ya'] }, { kana:'ゆ', r:['yu'] }, { kana:'よ', r:['yo'] },
+    { kana:'ら', r:['ra'] }, { kana:'り', r:['ri'] }, { kana:'る', r:['ru'] }, { kana:'れ', r:['re'] }, { kana:'ろ', r:['ro'] },
+    { kana:'わ', r:['wa'] }, { kana:'を', r:['wo','o'] }, { kana:'ん', r:['n','nn'] },
+  ],
+  dakuten: [
+    { kana:'が', r:['ga'] }, { kana:'ぎ', r:['gi'] }, { kana:'ぐ', r:['gu'] }, { kana:'げ', r:['ge'] }, { kana:'ご', r:['go'] },
+    { kana:'ざ', r:['za'] }, { kana:'じ', r:['ji','zi'] }, { kana:'ず', r:['zu'] }, { kana:'ぜ', r:['ze'] }, { kana:'ぞ', r:['zo'] },
+    { kana:'だ', r:['da'] }, { kana:'ぢ', r:['ji','di'] }, { kana:'づ', r:['zu','du'] }, { kana:'で', r:['de'] }, { kana:'ど', r:['do'] },
+    { kana:'ば', r:['ba'] }, { kana:'び', r:['bi'] }, { kana:'ぶ', r:['bu'] }, { kana:'べ', r:['be'] }, { kana:'ぼ', r:['bo'] },
+  ],
+  handakuten: [
+    { kana:'ぱ', r:['pa'] }, { kana:'ぴ', r:['pi'] }, { kana:'ぷ', r:['pu'] }, { kana:'ぺ', r:['pe'] }, { kana:'ぽ', r:['po'] },
+  ],
+  youon: [
+    { kana:'きゃ', r:['kya'] }, { kana:'きゅ', r:['kyu'] }, { kana:'きょ', r:['kyo'] },
+    { kana:'しゃ', r:['sha','sya'] }, { kana:'しゅ', r:['shu','syu'] }, { kana:'しょ', r:['sho','syo'] },
+    { kana:'ちゃ', r:['cha','tya'] }, { kana:'ちゅ', r:['chu','tyu'] }, { kana:'ちょ', r:['cho','tyo'] },
+    { kana:'にゃ', r:['nya'] }, { kana:'にゅ', r:['nyu'] }, { kana:'にょ', r:['nyo'] },
+    { kana:'ひゃ', r:['hya'] }, { kana:'ひゅ', r:['hyu'] }, { kana:'ひょ', r:['hyo'] },
+    { kana:'みゃ', r:['mya'] }, { kana:'みゅ', r:['myu'] }, { kana:'みょ', r:['myo'] },
+    { kana:'りゃ', r:['rya'] }, { kana:'りゅ', r:['ryu'] }, { kana:'りょ', r:['ryo'] },
+    { kana:'ぎゃ', r:['gya'] }, { kana:'ぎゅ', r:['gyu'] }, { kana:'ぎょ', r:['gyo'] },
+    { kana:'じゃ', r:['ja','jya'] }, { kana:'じゅ', r:['ju','jyu'] }, { kana:'じょ', r:['jo','jyo'] },
+    { kana:'びゃ', r:['bya'] }, { kana:'びゅ', r:['byu'] }, { kana:'びょ', r:['byo'] },
+    { kana:'ぴゃ', r:['pya'] }, { kana:'ぴゅ', r:['pyu'] }, { kana:'ぴょ', r:['pyo'] },
+  ],
+};
+
+const KATAKANA = {
+  seion: [
+    { kana:'ア', r:['a'] }, { kana:'イ', r:['i'] }, { kana:'ウ', r:['u'] }, { kana:'エ', r:['e'] }, { kana:'オ', r:['o'] },
+    { kana:'カ', r:['ka'] }, { kana:'キ', r:['ki'] }, { kana:'ク', r:['ku'] }, { kana:'ケ', r:['ke'] }, { kana:'コ', r:['ko'] },
+    { kana:'サ', r:['sa'] }, { kana:'シ', r:['shi','si'] }, { kana:'ス', r:['su'] }, { kana:'セ', r:['se'] }, { kana:'ソ', r:['so'] },
+    { kana:'タ', r:['ta'] }, { kana:'チ', r:['chi','ti'] }, { kana:'ツ', r:['tsu','tu'] }, { kana:'テ', r:['te'] }, { kana:'ト', r:['to'] },
+    { kana:'ナ', r:['na'] }, { kana:'ニ', r:['ni'] }, { kana:'ヌ', r:['nu'] }, { kana:'ネ', r:['ne'] }, { kana:'ノ', r:['no'] },
+    { kana:'ハ', r:['ha'] }, { kana:'ヒ', r:['hi'] }, { kana:'フ', r:['fu','hu'] }, { kana:'ヘ', r:['he'] }, { kana:'ホ', r:['ho'] },
+    { kana:'マ', r:['ma'] }, { kana:'ミ', r:['mi'] }, { kana:'ム', r:['mu'] }, { kana:'メ', r:['me'] }, { kana:'モ', r:['mo'] },
+    { kana:'ヤ', r:['ya'] }, { kana:'ユ', r:['yu'] }, { kana:'ヨ', r:['yo'] },
+    { kana:'ラ', r:['ra'] }, { kana:'リ', r:['ri'] }, { kana:'ル', r:['ru'] }, { kana:'レ', r:['re'] }, { kana:'ロ', r:['ro'] },
+    { kana:'ワ', r:['wa'] }, { kana:'ヲ', r:['wo','o'] }, { kana:'ン', r:['n','nn'] },
+  ],
+  dakuten: [
+    { kana:'ガ', r:['ga'] }, { kana:'ギ', r:['gi'] }, { kana:'グ', r:['gu'] }, { kana:'ゲ', r:['ge'] }, { kana:'ゴ', r:['go'] },
+    { kana:'ザ', r:['za'] }, { kana:'ジ', r:['ji','zi'] }, { kana:'ズ', r:['zu'] }, { kana:'ゼ', r:['ze'] }, { kana:'ゾ', r:['zo'] },
+    { kana:'ダ', r:['da'] }, { kana:'ヂ', r:['ji','di'] }, { kana:'ヅ', r:['zu','du'] }, { kana:'デ', r:['de'] }, { kana:'ド', r:['do'] },
+    { kana:'バ', r:['ba'] }, { kana:'ビ', r:['bi'] }, { kana:'ブ', r:['bu'] }, { kana:'ベ', r:['be'] }, { kana:'ボ', r:['bo'] },
+  ],
+  handakuten: [
+    { kana:'パ', r:['pa'] }, { kana:'ピ', r:['pi'] }, { kana:'プ', r:['pu'] }, { kana:'ペ', r:['pe'] }, { kana:'ポ', r:['po'] },
+  ],
+  youon: [
+    { kana:'キャ', r:['kya'] }, { kana:'キュ', r:['kyu'] }, { kana:'キョ', r:['kyo'] },
+    { kana:'シャ', r:['sha','sya'] }, { kana:'シュ', r:['shu','syu'] }, { kana:'ショ', r:['sho','syo'] },
+    { kana:'チャ', r:['cha','tya'] }, { kana:'チュ', r:['chu','tyu'] }, { kana:'チョ', r:['cho','tyo'] },
+    { kana:'ニャ', r:['nya'] }, { kana:'ニュ', r:['nyu'] }, { kana:'ニョ', r:['nyo'] },
+    { kana:'ヒャ', r:['hya'] }, { kana:'ヒュ', r:['hyu'] }, { kana:'ヒョ', r:['hyo'] },
+    { kana:'ミャ', r:['mya'] }, { kana:'ミュ', r:['myu'] }, { kana:'ミョ', r:['myo'] },
+    { kana:'リャ', r:['rya'] }, { kana:'リュ', r:['ryu'] }, { kana:'リョ', r:['ryo'] },
+    { kana:'ギャ', r:['gya'] }, { kana:'ギュ', r:['gyu'] }, { kana:'ギョ', r:['gyo'] },
+    { kana:'ジャ', r:['ja','jya'] }, { kana:'ジュ', r:['ju','jyu'] }, { kana:'ジョ', r:['jo','jyo'] },
+    { kana:'ビャ', r:['bya'] }, { kana:'ビュ', r:['byu'] }, { kana:'ビョ', r:['byo'] },
+    { kana:'ピャ', r:['pya'] }, { kana:'ピュ', r:['pyu'] }, { kana:'ピョ', r:['pyo'] },
+  ],
+};
+
+const CAT_LABELS = {
+  seion:     '清音',
+  dakuten:   '濁音',
+  handakuten:'半濁音',
+  youon:     '拗音',
+};
+
+// ===================== APP =====================
+
+createApp({
+  setup() {
+    const screen       = ref('home');
+    const script       = ref('hiragana');
+    const selectedCats = ref(['seion']);
+    const inputEl      = ref(null);
+
+    // Game state
+    const pool         = ref([]);
+    const currentIdx   = ref(0);
+    const userInput    = ref('');
+    const cardState    = ref('');  // '' | 'correct' | 'wrong'
+    const feedbackMsg  = ref('');
+    const feedbackState= ref('');
+    const correctCount = ref(0);
+    const totalCount   = ref(0);
+    const streak       = ref(0);
+
+    // ---- Computed ----
+    const categories = computed(() => [
+      { key: 'seion',      label: '清音' },
+      { key: 'dakuten',    label: '濁音' },
+      { key: 'handakuten', label: '半濁音' },
+      { key: 'youon',      label: '拗音' },
+    ]);
+
+    const currentEntry = computed(() => pool.value[currentIdx.value] || null);
+    const currentKana  = computed(() => currentEntry.value?.kana ?? '');
+    const currentCatLabel = computed(() => {
+      if (!currentEntry.value) return '';
+      return CAT_LABELS[currentEntry.value.cat] ?? '';
+    });
+
+    const totalSelected = computed(() => {
+      const data = script.value === 'hiragana' ? HIRAGANA : KATAKANA;
+      return selectedCats.value.reduce((acc, cat) => acc + (data[cat]?.length ?? 0), 0);
+    });
+
+    // ---- Methods ----
+    function getCount(catKey) {
+      const data = script.value === 'hiragana' ? HIRAGANA : KATAKANA;
+      return data[catKey]?.length ?? 0;
+    }
+
+    function toggleCat(key) {
+      const idx = selectedCats.value.indexOf(key);
+      if (idx === -1) selectedCats.value.push(key);
+      else if (selectedCats.value.length > 1) selectedCats.value.splice(idx, 1);
+      // prevent deselecting all
+    }
+
+    function buildPool() {
+      const data = script.value === 'hiragana' ? HIRAGANA : KATAKANA;
+      let all = [];
+      for (const cat of selectedCats.value) {
+        if (data[cat]) {
+          all = all.concat(data[cat].map(e => ({ ...e, cat })));
+        }
+      }
+      // shuffle
+      for (let i = all.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [all[i], all[j]] = [all[j], all[i]];
+      }
+      return all;
+    }
+
+    function startGame() {
+      pool.value = buildPool();
+      currentIdx.value = 0;
+      userInput.value = '';
+      cardState.value = '';
+      feedbackMsg.value = '';
+      feedbackState.value = '';
+      correctCount.value = 0;
+      totalCount.value = 0;
+      streak.value = 0;
+      screen.value = 'game';
+      nextTick(() => inputEl.value?.focus());
+    }
+
+    function goHome() {
+      screen.value = 'home';
+    }
+
+    let wrongTimer = null;
+
+    function checkAnswer() {
+      if (cardState.value === 'correct') return; // waiting for next
+      const raw = userInput.value.trim().toLowerCase();
+      if (!raw) return;
+
+      const entry = currentEntry.value;
+      if (!entry) return;
+
+      if (entry.r.includes(raw)) {
+        // Correct!
+        correctCount.value++;
+        totalCount.value++;
+        streak.value++;
+        cardState.value = 'correct';
+        feedbackState.value = 'correct';
+        feedbackMsg.value = '✓ 正確！';
+
+        setTimeout(() => {
+          cardState.value = '';
+          feedbackMsg.value = '';
+          feedbackState.value = '';
+          userInput.value = '';
+          // Advance
+          if (currentIdx.value + 1 < pool.value.length) {
+            currentIdx.value++;
+          } else {
+            // Reshuffle & loop
+            pool.value = buildPool();
+            currentIdx.value = 0;
+          }
+          nextTick(() => inputEl.value?.focus());
+        }, 700);
+
+      } else {
+        // Wrong
+        totalCount.value++;
+        streak.value = 0;
+        cardState.value = 'wrong';
+        feedbackState.value = 'wrong';
+        feedbackMsg.value = `✗ 不對，再試試！`;
+        userInput.value = '';
+
+        if (wrongTimer) clearTimeout(wrongTimer);
+        wrongTimer = setTimeout(() => {
+          cardState.value = '';
+          feedbackMsg.value = '';
+          feedbackState.value = '';
+          nextTick(() => inputEl.value?.focus());
+        }, 900);
+      }
+    }
+
+    return {
+      screen, script, selectedCats, inputEl,
+      categories, totalSelected,
+      currentKana, currentCatLabel,
+      userInput, cardState, feedbackMsg, feedbackState,
+      correctCount, totalCount, streak,
+      getCount, toggleCat, startGame, goHome, checkAnswer,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
